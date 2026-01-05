@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import { Globe, Languages, DollarSign, MapPin, MapPinOff } from "lucide-react";
+import { useActionData } from "react-router";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
@@ -84,7 +85,6 @@ const countries = [
   "India",
   "Canada",
 ];
-
 const positions = [
   "Header",
   "Main content",
@@ -99,25 +99,25 @@ const positions = [
 ];
 
 export default function Index() {
+  const actionData = useActionData();
   const shopify = useAppBridge();
 
   const [formData, setFormData] = useState({
-    url: "",
+    websiteUrl: "",
     language: "Spanish",
     currency: "EUR",
     country: "Spain",
     position: "Header",
   });
 
+  useEffect(() => {
+    if (actionData?.success) {
+      shopify.toast.show("Localization settings saved!");
+    }
+  }, [actionData]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulate API call
-    shopify.toast.show("Localization settings saved!");
-    console.log("Form submitted:", formData);
   };
 
   return (
@@ -152,27 +152,27 @@ export default function Index() {
           </div>
 
           {/* Form Card */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Website Integration */}
-              <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <Globe className="w-5 h-5 mr-2 text-blue-600" /> Website link
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <input
-                      type="url"
-                      name="url"
-                      value={formData.url}
-                      onChange={handleChange}
-                      placeholder="https://yourstore.com"
-                      className="w-full px-4 py-3 border border-gray-200 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                  </div>
+          <form method="post" className="space-y-6">
+            {/* Website Integration */}
+            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Globe className="w-5 h-5 mr-2 text-blue-600" /> Website link
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <input
+                    type="url"
+                    name="websiteUrl"
+                    value={formData.websiteUrl}
+                    onChange={handleChange}
+                    placeholder="https://yourstore.com"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
                 </div>
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Language Settings */}
               <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-xl border border-emerald-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -184,7 +184,7 @@ export default function Index() {
                     name="language"
                     value={formData.language}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none bg-white"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
                   >
                     {languages.map((lang) => (
                       <option key={lang} value={lang}>
@@ -237,25 +237,25 @@ export default function Index() {
                   </select>
                 </div>
               </div>
-            </div>
 
-            {/* Header Input */}
-            <div className="bg-gradient-to-br from-pink-50 to-rose-50 p-6 rounded-xl border border-pink-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <MapPinOff className="w-5 h-5 mr-2 text-pink-600" /> Position
-              </h3>
-              <select
-                name="position"
-                value={formData.position || "Header"}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all appearance-none bg-white"
-              >
-                {positions.map((pos) => (
-                  <option key={pos} value={pos}>
-                    {pos}
-                  </option>
-                ))}
-              </select>
+              {/* Position Input */}
+              <div className="bg-gradient-to-br from-pink-50 to-rose-50 p-6 rounded-xl border border-pink-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <MapPinOff className="w-5 h-5 mr-2 text-pink-600" /> Position
+                </h3>
+                <select
+                  name="position"
+                  value={formData.position || "Header"}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-white"
+                >
+                  {positions.map((pos) => (
+                    <option key={pos} value={pos}>
+                      {pos}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Submit Button */}

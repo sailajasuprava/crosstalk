@@ -32,3 +32,17 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+model LocalizationConfig {
+  id         String   @id @default(uuid())
+  shop       String   @unique  // myshop.myshopify.com
+  websiteUrl String?
+  language   String   @default("English")
+  currency   String   @default("USD")
+  country    String   @default("United States")
+  position   String   @default("Header")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("localization_configs")
+}
