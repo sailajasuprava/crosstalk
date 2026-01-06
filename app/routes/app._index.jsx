@@ -120,6 +120,8 @@ export default function Index() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  console.log(formData);
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Top Header */}
