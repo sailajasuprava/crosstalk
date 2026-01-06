@@ -32,7 +32,7 @@
       var shop = container.dataset.shop;
 
       var response = await fetch(
-        'https://crosstalk-mu.vercel.app/apps/crosstalk/api/localization?shop=' + shop
+        'https://crosstalk-mu.vercel.app/api/localization?shop=' + shop
       );
 
       if (!response.ok) {
