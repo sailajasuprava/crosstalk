@@ -2,7 +2,7 @@
 
 client_id = "720e6f78aa294e76aad1a204874043b7"
 name = "crosstalk"
-application_url = "https://example.com"
+application_url = "https://crosstalk-mu.vercel.app"
 embedded = true
 
 [build]
@@ -13,16 +13,24 @@ include_config_on_deploy = true
 api_version = "2026-04"
 
   [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
   uri = "/webhooks/app/uninstalled"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://crosstalk-mu.vercel.app/api/auth",
+  "https://crosstalk-mu.vercel.app/api/auth/callback",
+  "https://crosstalk-mu.vercel.app/auth/callback"
+]
