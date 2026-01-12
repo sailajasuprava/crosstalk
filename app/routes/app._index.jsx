@@ -1,14 +1,32 @@
-import { useEffect, useState } from "react";
-import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
-import { Globe, Languages, DollarSign, MapPin, MapPinOff } from "lucide-react";
-import { useActionData } from "react-router";
+import "@shopify/polaris/build/esm/styles.css";
+import { useLoaderData } from "react-router";
+
+import {
+  Page,
+  Layout,
+  Card,
+  BlockStack,
+  InlineStack,
+  Text,
+  Box,
+  Tag,
+  Button,
+  Select,
+  TextField,
+  ChoiceList,
+  Divider,
+} from "@shopify/polaris";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
-  return null;
+  return Response.json({
+    shop: session.shop,
+    appId: process.env.SHOPIFY_APP_ID,
+    appHandle: "crosstalk-localization", // Hardcode or from env
+  });
 };
 
 export const action = async ({ request }) => {
@@ -76,203 +94,490 @@ export const action = async ({ request }) => {
   };
 };
 
-const languages = ["English", "Spanish", "French", "German", "Hindi"];
-const currencies = ["USD", "EUR", "GBP", "INR", "CAD"];
-const countries = [
-  "United States",
-  "Spain",
-  "United Kingdom",
-  "India",
-  "Canada",
-];
-const positions = [
-  "Header",
-  "Main content",
-  "Footer",
-  "Above header",
-  "Below header",
-  "Above main",
-  "Below main",
-  "Above footer",
-  "Below footer",
-  "Announcement bar",
+const mockLanguages = [
+  "Betawi",
+  "Bhojpuri",
+  "Bikol",
+  "Bosnian",
+  "Breton",
+  "Bulgarian",
+  "Buryat",
+  "Cantonese",
+  "Catalan",
+  "Cebuano",
+  "Chamorro",
+  "Chechen",
+  "Chichewa",
+  "Chinese (Simplified)",
+  "Chinese (Traditional)",
+  "Chuukese",
+  "Chuvash",
+  "Corsican",
+  "Crimean Tatar",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dari",
+  "Dhivehi",
+  "Dinka",
+  "Dogri",
+  "Dombe",
+  "Dutch",
+  "Dyula",
+  "Dzongkha",
+  "English",
+  "Esperanto",
+  "Estonian",
+  "Ewe",
+  "Faroese",
+  "Fijian",
+  "Filipino",
+  "Finnish",
+  "Fon",
+  "French",
+  "Frisian",
+  "Friulian",
+  "Fulani",
+  "Ga",
+  "Galician",
+  "Georgian",
 ];
 
 export default function Index() {
-  const actionData = useActionData();
-  const shopify = useAppBridge();
+  const { shop, appId } = useLoaderData();
 
-  const [formData, setFormData] = useState({
-    websiteUrl: "",
-    language: "Spanish",
-    currency: "EUR",
-    country: "Spain",
-    position: "Header",
-  });
-
-  useEffect(() => {
-    if (actionData?.success) {
-      shopify.toast.show("Localization settings saved!");
+  const handleEnableEmbed = () => {
+    if (!shop) {
+      console.error("Shop is missing");
+      return;
     }
-  }, [actionData]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const storeHandle = shop.replace(".myshopify.com", "");
+
+    const extensionHandle = "crosstalk-localization"; // theme extension folder name
+    const activateAppId = `app-embed-block-id://${appId}/${extensionHandle}`;
+
+    const url = `https://admin.shopify.com/store/${storeHandle}/themes/current/editor?context=apps&activateAppId=${encodeURIComponent(
+      activateAppId,
+    )}`;
+
+    window.open(
+      `https://${shop}/admin/themes/current/editor?context=apps`,
+      "_blank",
+    );
+    // window.open(url, "_top");
   };
 
-  console.log(formData);
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Top Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">C</span>
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">CrossTalk</h1>
-            <p className="text-sm text-gray-500">
-              Multilingual & Multi-currency
-            </p>
-          </div>
-        </div>
-      </div>
+    <Page title="Dashboard">
+      <Layout>
+        {/* 1. Dashboard banner (screenshot 3) */}
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="300">
+              <InlineStack align="space-between" blockAlign="center">
+                <BlockStack gap="100">
+                  <Text as="h2" variant="headingMd"></Text>
+                </BlockStack>
+                <Select
+                  label="Selected Language"
+                  labelHidden
+                  options={[
+                    { label: "Select Language", value: "select" },
+                    { label: "English", value: "en" },
+                    { label: "French", value: "fr" },
+                  ]}
+                  value="select"
+                  onChange={() => {}}
+                />
+              </InlineStack>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto mt-8">
-        {/* Hero Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
-              Add multilingual & multi-currency support
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Allow visitors to view your site in their preferred language and
-              currency.
-            </p>
-          </div>
-
-          {/* Form Card */}
-          <form method="post" className="space-y-6">
-            {/* Website Integration */}
-            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Globe className="w-5 h-5 mr-2 text-blue-600" /> Website link
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <input
-                    type="url"
-                    name="websiteUrl"
-                    value={formData.websiteUrl}
-                    onChange={handleChange}
-                    placeholder="https://yourstore.com"
-                    className="w-full px-4 py-3 border border-gray-200 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Language Settings */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-xl border border-emerald-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <Languages className="w-5 h-5 mr-2 text-emerald-600" /> Add
-                  language
-                </h3>
-                <div className="space-y-3">
-                  <select
-                    name="language"
-                    value={formData.language}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
-                  >
-                    {languages.map((lang) => (
-                      <option key={lang} value={lang}>
-                        {lang}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Currency Settings */}
-              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-6 rounded-xl border border-amber-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <DollarSign className="w-5 h-5 mr-2 text-amber-600" /> Add
-                  currency
-                </h3>
-                <div className="space-y-3">
-                  <select
-                    name="currency"
-                    value={formData.currency}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all bg-white"
-                  >
-                    {currencies.map((curr) => (
-                      <option key={curr} value={curr}>
-                        {curr}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Country Settings */}
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-6 rounded-xl border border-purple-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-purple-600" /> Deliver to
-                </h3>
-                <div className="space-y-3">
-                  <select
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all bg-white"
-                  >
-                    {countries.map((country) => (
-                      <option key={country} value={country}>
-                        {country}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Position Input */}
-              <div className="bg-gradient-to-br from-pink-50 to-rose-50 p-6 rounded-xl border border-pink-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <MapPinOff className="w-5 h-5 mr-2 text-pink-600" /> Position
-                </h3>
-                <select
-                  name="position"
-                  value={formData.position || "Header"}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-white"
-                >
-                  {positions.map((pos) => (
-                    <option key={pos} value={pos}>
-                      {pos}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-end pt-4">
-              <button
-                type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center space-x-2"
+              <Box
+                padding="400"
+                background="bg-surface-warning"
+                borderRadius="200"
               >
-                <span>Submit</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+                <BlockStack gap="200">
+                  <Text as="h3" variant="headingSm">
+                    Get Started! Enable the App
+                  </Text>
+                  <Text as="p">
+                    Get setup in 10 seconds! Click the button below to enable
+                    the app embed in your theme, and remember to click save.
+                  </Text>
+                  <InlineStack>
+                    {" "}
+                    <Button
+                      variant="primary"
+                      size="large"
+                      onClick={handleEnableEmbed}
+                    >
+                      Enable App Embed
+                    </Button>
+                  </InlineStack>
+                </BlockStack>
+              </Box>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        {/* 2. Language Selector configuration (screenshot 2) */}
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <Text as="h2" variant="headingMd">
+                Language Selector
+              </Text>
+
+              {/* Toggle icon/text variants */}
+              <ChoiceList
+                title="Button type"
+                choices={[
+                  { label: "Icon & Text Button", value: "icon-text" },
+                  { label: "Icon Button Only", value: "icon" },
+                  { label: "Text Button Only", value: "text" },
+                ]}
+                selected={["icon-text"]}
+                onChange={() => {}}
+              />
+
+              <Divider />
+
+              {/* Icon button shape and icon row */}
+              <InlineStack gap="400" wrap>
+                <Box minWidth="220px">
+                  <Select
+                    label="Icon Button Shape"
+                    options={[
+                      { label: "Circle", value: "circle" },
+                      { label: "Square", value: "square" },
+                      { label: "Rounded square", value: "rounded" },
+                    ]}
+                    value="circle"
+                    onChange={() => {}}
+                  />
+                </Box>
+
+                <InlineStack gap="200" align="center">
+                  <Box>
+                    <Text as="p" variant="bodyMd">
+                      Button Color
+                    </Text>
+                    <Box
+                      width="40px"
+                      height="40px"
+                      borderRadius="100"
+                      background="bg"
+                      borderColor="border-strong"
+                      borderWidth="025"
+                    />
+                  </Box>
+                  <Box>
+                    <Text as="p" variant="bodyMd">
+                      Icon Color
+                    </Text>
+                    <Box
+                      width="40px"
+                      height="40px"
+                      borderRadius="100"
+                      background="bg"
+                      borderColor="border-strong"
+                      borderWidth="025"
+                    />
+                  </Box>
+                </InlineStack>
+              </InlineStack>
+
+              {/* Icon selection / upload */}
+              <InlineStack gap="400" wrap>
+                <Box>
+                  <Text as="p" variant="bodySm">
+                    Select an icon
+                  </Text>
+                  <InlineStack gap="200" align="center">
+                    <Box
+                      width="40px"
+                      height="40px"
+                      borderRadius="200"
+                      background="bg-surface-secondary"
+                      borderColor="border"
+                      borderWidth="025"
+                    />
+                    <Box
+                      width="40px"
+                      height="40px"
+                      borderRadius="200"
+                      background="bg-surface-secondary"
+                      borderColor="border"
+                      borderWidth="025"
+                    />
+                    <Box
+                      width="40px"
+                      height="40px"
+                      borderRadius="200"
+                      background="bg-surface-secondary"
+                      borderColor="border"
+                      borderWidth="025"
+                    />
+                    <Box
+                      width="40px"
+                      height="40px"
+                      borderRadius="200"
+                      background="bg-surface-secondary"
+                      borderColor="border"
+                      borderWidth="025"
+                    />
+                  </InlineStack>
+                </Box>
+
+                <Box>
+                  <Text as="p" variant="bodySm">
+                    Or upload image
+                  </Text>
+                  <Button outline>Add image</Button>
+                  <Text as="p" tone="subdued" variant="bodyXs">
+                    Max 10MB; jpeg, png, webp
+                  </Text>
+                  <TextField label="URL" labelHidden placeholder="URL" />
+                </Box>
+              </InlineStack>
+
+              <Divider />
+
+              {/* Text button subsection */}
+              <BlockStack gap="200">
+                <Text as="p" variant="headingSm">
+                  Text Button
+                </Text>
+                <InlineStack gap="300" wrap>
+                  <Box minWidth="220px">
+                    <Select
+                      label="Label type"
+                      options={[
+                        { label: "Language Label", value: "language" },
+                        { label: "Custom Label", value: "custom" },
+                      ]}
+                      value="language"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                  <Box minWidth="220px">
+                    <Select
+                      label="Shape"
+                      options={[
+                        { label: "Rounded square", value: "rounded" },
+                        { label: "Pill", value: "pill" },
+                        { label: "Square", value: "square" },
+                      ]}
+                      value="rounded"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                </InlineStack>
+
+                <InlineStack gap="300" wrap>
+                  <TextField
+                    label="Custom Text Label"
+                    placeholder="Translate"
+                  />
+                  <Box minWidth="220px">
+                    <TextField
+                      label="Use *lang* to display selected language"
+                      value="Translate *lang*"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                </InlineStack>
+
+                <InlineStack gap="200" align="center">
+                  <Button size="micro">Bold</Button>
+                  <Box maxWidth="260px">
+                    <TextField
+                      type="range"
+                      label="Font Size"
+                      value="16"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                </InlineStack>
+
+                <InlineStack gap="300" wrap>
+                  <Box>
+                    <Text as="p" variant="bodySm">
+                      Text Color
+                    </Text>
+                    <Box
+                      width="32px"
+                      height="32px"
+                      borderRadius="200"
+                      background="bg"
+                      borderColor="border-strong"
+                      borderWidth="025"
+                    />
+                  </Box>
+                  <Box>
+                    <Text as="p" variant="bodySm">
+                      Background
+                    </Text>
+                    <Box
+                      width="32px"
+                      height="32px"
+                      borderRadius="200"
+                      background="bg"
+                      borderColor="border-strong"
+                      borderWidth="025"
+                    />
+                  </Box>
+                </InlineStack>
+              </BlockStack>
+
+              <Divider />
+
+              {/* Disable translation and z-index */}
+              <InlineStack gap="300" wrap>
+                <Box maxWidth="260px">
+                  <TextField
+                    label="'Disable Translation' Label"
+                    value="Disable Translation"
+                    onChange={() => {}}
+                  />
+                </Box>
+                <Box maxWidth="260px">
+                  <TextField label="Button Z-Index" value="2347483648" />
+                </Box>
+              </InlineStack>
+
+              <Divider />
+
+              {/* Desktop / Mobile settings */}
+              <BlockStack gap="300">
+                <Text as="p" variant="headingSm">
+                  Settings below apply for desktop & mobile separately
+                </Text>
+
+                <InlineStack gap="300" wrap>
+                  <Button primary>Desktop Settings</Button>
+                  <Button>Mobile Settings</Button>
+                </InlineStack>
+
+                <ChoiceList
+                  title=""
+                  choices={[
+                    {
+                      label: "Show Language Selector - Desktop",
+                      value: "show-desktop",
+                    },
+                  ]}
+                  selected={["show-desktop"]}
+                  onChange={() => {}}
+                />
+
+                <InlineStack gap="300" wrap>
+                  <Box minWidth="260px">
+                    <Select
+                      label="Button Position"
+                      options={[
+                        {
+                          label: "Floating (moves with page)",
+                          value: "floating",
+                        },
+                        { label: "Fixed", value: "fixed" },
+                      ]}
+                      value="floating"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                  <Box minWidth="260px">
+                    <Select
+                      label="Vertical alignment"
+                      options={[
+                        { label: "Bottom Right", value: "bottom-right" },
+                        { label: "Bottom Left", value: "bottom-left" },
+                      ]}
+                      value="bottom-right"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                </InlineStack>
+
+                <InlineStack gap="300" wrap>
+                  <Box maxWidth="180px">
+                    <TextField
+                      label="Horizontal margin"
+                      suffix="px"
+                      value="13"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                  <Box maxWidth="180px">
+                    <TextField
+                      label="Vertical margin"
+                      suffix="px"
+                      value="13"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                  <Box maxWidth="180px">
+                    <TextField
+                      label="Button size"
+                      suffix="px"
+                      value="55"
+                      onChange={() => {}}
+                    />
+                  </Box>
+                </InlineStack>
+              </BlockStack>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        {/* 3. Language options section (screenshot 1) */}
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <BlockStack gap="050">
+                <Text as="h2" variant="headingMd">
+                  Language options
+                </Text>
+                <Text as="p" tone="subdued">
+                  Select which language options to offer with the Language
+                  Selector Button.
+                </Text>
+              </BlockStack>
+
+              <Box
+                padding="300"
+                borderWidth="025"
+                borderRadius="200"
+                borderColor="border"
+                background="bg-surface-secondary"
+              >
+                <InlineStack gap="100" wrap={true}>
+                  {mockLanguages.map((lang) => (
+                    <Tag key={lang} onRemove={() => {}}>
+                      {lang}
+                    </Tag>
+                  ))}
+                </InlineStack>
+              </Box>
+
+              <Box maxWidth="400px">
+                <TextField
+                  label="Search & select languages"
+                  labelHidden
+                  placeholder="Search & select languages"
+                />
+              </Box>
+
+              <InlineStack gap="200">
+                <Button>Unselect All</Button>
+                <Button primary>Select All</Button>
+              </InlineStack>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </Page>
   );
 }
 
